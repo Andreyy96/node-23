@@ -1,2 +1,4 @@
 .idea
 node-23.iml
+package-lock.json
+node_modules
