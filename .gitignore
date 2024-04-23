@@ -3,3 +3,4 @@ node-23.iml
 node_modules
 dist
 eslint.config.mjs
+command

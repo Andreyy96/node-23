@@ -1,3 +1,4 @@
+import { ApiError } from "../api-error";
 import { IUser } from "../inerfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
 
@@ -11,15 +12,27 @@ class UserService {
   }
 
   public async findUser(id: number): Promise<IUser> {
-    return await userRepository.findUser(id);
+    const user = await userRepository.findUser(id);
+    if (!user) {
+      throw new ApiError("user not found", 404);
+    }
+    return user;
   }
 
   public async update(id: number, dto: Partial<IUser>): Promise<IUser> {
+    const user = await userRepository.findUser(id);
+    if (!user) {
+      throw new ApiError("user not found", 404);
+    }
     return await userRepository.update(id, dto);
   }
 
   public async deleteUser(id: number): Promise<void> {
-    await userRepository.deleteUser(id);
+    const user = await userRepository.findUser(id);
+    if (!user) {
+      throw new ApiError("user not found", 404);
+    }
+    return await userRepository.deleteUser(id);
   }
 }
 
