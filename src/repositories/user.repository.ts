@@ -52,7 +52,7 @@ class UserRepository {
     return user;
   }
 
-  public async update(id: number, dto: Partial<IUser>) {
+  public async update(id: number, dto: Partial<IUser>): Promise<IUser> {
     const { name, email, password } = dto;
     const users: IUser[] = await this.reader();
     const userIndex: number = users.findIndex((user) => user.id === +id);
@@ -66,7 +66,7 @@ class UserRepository {
     return users[userIndex];
   }
 
-  public async deleteUser(id: number) {
+  public async deleteUser(id: number): Promise<void> {
     const users: IUser[] = await this.reader();
     const userIndex: number = users.findIndex((user) => user.id === +id);
 

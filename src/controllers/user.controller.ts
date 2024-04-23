@@ -51,7 +51,7 @@ class UserController {
     try {
       const { id } = req.params;
       await userService.deleteUser(+id);
-      res.sendStatus(200);
+      res.sendStatus(204);
     } catch (e) {
       next(e);
     }
