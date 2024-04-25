@@ -17,7 +17,7 @@ class CommonMiddleware {
     }
   }
 
-  public async isReqBodyValid(req: Request, res: Response, next: NextFunction) {
+  public isReqBodyValid(req: Request, res: Response, next: NextFunction) {
     try {
       const { error } =
         req.method === "POST"
