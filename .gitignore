@@ -4,3 +4,4 @@ node_modules
 dist
 eslint.config.mjs
 command
+.env
