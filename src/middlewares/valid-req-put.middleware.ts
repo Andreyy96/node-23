@@ -17,7 +17,6 @@ class ValidReqPutMiddleware {
     try {
       const { error } = schema.validate(req.body);
       if (error) {
-        console.log(error.details);
         throw new ApiError(`${error.details[0].message}`, 400);
       }
       next();
