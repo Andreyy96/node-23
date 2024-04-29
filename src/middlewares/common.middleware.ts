@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
+import { ObjectSchema } from "joi";
 import { isObjectIdOrHexString } from "mongoose";
 
-import { ApiError } from "../api-error";
-import { schemaForPostUser, schemaForPutUser } from "../user.validator";
+import { ApiError } from "../errors/api-error";
 
 class CommonMiddleware {
   public isIdValid(req: Request, res: Response, next: NextFunction) {
@@ -17,19 +17,15 @@ class CommonMiddleware {
     }
   }
 
-  public isReqBodyValid(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { error } =
-        req.method === "POST"
-          ? schemaForPostUser.validate(req.body)
-          : schemaForPutUser.validate(req.body);
-      if (error) {
-        throw new ApiError(`${error.details[0].message}`, 400);
+  public isReqBodyValid(validator: ObjectSchema) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        req.body = await validator.validateAsync(req.body);
+        next();
+      } catch (e) {
+        next(e);
       }
-      next();
-    } catch (e) {
-      next(e);
-    }
+    };
   }
 }
 

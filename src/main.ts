@@ -1,8 +1,8 @@
 import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 
-import { ApiError } from "./api-error";
 import { config } from "./configs/config";
+import { ApiError } from "./errors/api-error";
 import { userRouter } from "./routers/user.router";
 
 const app = express();
