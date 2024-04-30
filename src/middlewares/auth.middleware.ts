@@ -50,7 +50,6 @@ class AuthMiddleware {
       req.res.locals.jwtPayload = tokenService.checkRefreshToken(refreshToken);
       next();
     } catch (e) {
-      await tokenRepository.deleteByRefreshToken(req.headers.authorization);
       next(e);
     }
   }

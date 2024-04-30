@@ -48,22 +48,16 @@ class AuthService {
       throw new ApiError("Wrong email or password", 401);
     }
 
-    const tokens = await tokenRepository.findByParams({ _userId: user._id });
+    const tokens = tokenService.generateToken({
+      userId: user._id,
+      role: user.role,
+    });
 
-    if (!tokens) {
-      const tokens = tokenService.generateToken({
-        userId: user._id,
-        role: user.role,
-      });
-
-      await tokenRepository.create({
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        _userId: user._id,
-      });
-
-      return { user, tokens };
-    }
+    await tokenRepository.update({
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      _userId: user._id,
+    });
 
     return { user, tokens };
   }
