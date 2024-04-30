@@ -43,12 +43,14 @@ class AuthMiddleware {
       const tokenPair = await tokenRepository.findByParams({ refreshToken });
 
       if (!tokenPair) {
+        await tokenRepository.deleteByRefreshToken(refreshToken);
         throw new ApiError("Invalid token", 401);
       }
 
       req.res.locals.jwtPayload = tokenService.checkRefreshToken(refreshToken);
       next();
     } catch (e) {
+      await tokenRepository.deleteByRefreshToken(req.headers.authorization);
       next(e);
     }
   }

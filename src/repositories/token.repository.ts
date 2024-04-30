@@ -18,6 +18,10 @@ class TokenRepository {
   public async deleteByUserId(id: string): Promise<void> {
     await Token.deleteOne({ _userId: id });
   }
+
+  public async deleteByRefreshToken(refreshToken: string): Promise<void> {
+    await Token.deleteOne({ refreshToken });
+  }
 }
 
 export const tokenRepository = new TokenRepository();
