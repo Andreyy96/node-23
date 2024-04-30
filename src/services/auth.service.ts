@@ -1,6 +1,6 @@
 import { ApiError } from "../errors/api-error";
-import { ITokenResponse } from "../inerfaces/token.interface";
-import { IUser } from "../inerfaces/user.interface";
+import { ITokenResponse } from "../interfaces/token.interface";
+import { IUser } from "../interfaces/user.interface";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
 import { passwordService } from "./password.service";

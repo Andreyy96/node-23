@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 import { RoleEnum } from "../enums/role.enum";
-import { IUser } from "../inerfaces/user.interface";
+import { IUser } from "../interfaces/user.interface";
 
 const userSchema = new mongoose.Schema(
   {

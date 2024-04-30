@@ -1,6 +1,6 @@
 import mongoose, { Types } from "mongoose";
 
-import { IToken } from "../inerfaces/token.interface";
+import { IToken } from "../interfaces/token.interface";
 import { User } from "./user.module";
 
 const tokenSchema = new mongoose.Schema(
