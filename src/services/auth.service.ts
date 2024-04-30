@@ -53,6 +53,18 @@ class AuthService {
       role: user.role,
     });
 
+    const userId = await tokenRepository.findByParams({ _userId: user._id });
+
+    if (!userId) {
+      await tokenRepository.create({
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        _userId: user._id,
+      });
+
+      return { user, tokens };
+    }
+
     await tokenRepository.update({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
