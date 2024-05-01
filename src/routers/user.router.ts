@@ -9,6 +9,8 @@ const router = Router();
 
 router.get("/", userController.getList);
 
+router.get("/me", authMiddleware.checkAccessToken, userController.getMe);
+
 router.get("/:id", commonMiddleware.isIdValid, userController.getUser);
 
 router.put(

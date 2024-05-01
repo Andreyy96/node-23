@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
+import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IUser } from "../interfaces/user.interface";
 import { userService } from "../services/user.service";
 
@@ -17,6 +18,17 @@ class UserController {
     try {
       const { id } = req.params;
       const user = await userService.findUser(id);
+
+      res.status(200).json(user);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async getMe(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+      const user = await userService.findUser(jwtPayload.userId);
 
       res.status(200).json(user);
     } catch (e) {
