@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
+import { TokenTypeEnum } from "../enums/token-type.enum";
 import { ApiError } from "../errors/api-error";
 import { tokenRepository } from "../repositories/token.repository";
 import { tokenService } from "../services/token.service";
@@ -22,7 +23,10 @@ class AuthMiddleware {
         throw new ApiError("Invalid token", 401);
       }
 
-      req.res.locals.jwtPayload = tokenService.checkAccessToken(accessToken);
+      req.res.locals.jwtPayload = tokenService.checkToken(
+        accessToken,
+        TokenTypeEnum.ACCESS,
+      );
       next();
     } catch (e) {
       next(e);
@@ -43,11 +47,14 @@ class AuthMiddleware {
       const tokenPair = await tokenRepository.findByParams({ refreshToken });
 
       if (!tokenPair) {
-        await tokenRepository.deleteByRefreshToken(refreshToken);
         throw new ApiError("Invalid token", 401);
       }
 
-      req.res.locals.jwtPayload = tokenService.checkRefreshToken(refreshToken);
+      req.res.locals.jwtPayload = tokenService.checkToken(
+        refreshToken,
+        TokenTypeEnum.REFRESH,
+      );
+      req.res.locals.tokenPair = tokenPair;
       next();
     } catch (e) {
       next(e);

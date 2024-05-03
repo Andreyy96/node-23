@@ -19,14 +19,18 @@ class UserService {
     return await this.check(id);
   }
 
-  public async update(id: string, dto: Partial<IUser>): Promise<IUser> {
-    await this.check(id);
-    return await userRepository.update(id, dto);
+  public async findMe(id: string): Promise<IUser> {
+    return await this.check(id);
   }
 
-  public async deleteUser(id: string): Promise<void> {
+  public async updateMe(id: string, dto: Partial<IUser>): Promise<IUser> {
     await this.check(id);
-    return await userRepository.deleteUser(id);
+    return await userRepository.updateById(id, dto);
+  }
+
+  public async deleteMe(id: string): Promise<void> {
+    await this.check(id);
+    await userRepository.updateById(id, { isDeleted: true });
   }
 }
 

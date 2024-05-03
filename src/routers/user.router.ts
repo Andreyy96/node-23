@@ -11,16 +11,14 @@ router.get("/", userController.getList);
 
 router.get("/me", authMiddleware.checkAccessToken, userController.getMe);
 
-router.get("/:id", commonMiddleware.isIdValid, userController.getUser);
-
 router.put(
-  "/:id",
+  "/me",
   authMiddleware.checkAccessToken,
-  commonMiddleware.isIdValid,
   commonMiddleware.isReqBodyValid(UserValidator.schemaForPutUser),
-  userController.update,
+  userController.updateMe,
 );
 
-router.delete("/:id", commonMiddleware.isIdValid, userController.deleteUser);
+router.delete("/me", authMiddleware.checkAccessToken, userController.deleteMe);
 
+router.get("/:id", commonMiddleware.isIdValid, userController.getUser);
 export const userRouter = router;

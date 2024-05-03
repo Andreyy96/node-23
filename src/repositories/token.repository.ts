@@ -19,8 +19,8 @@ class TokenRepository {
     await Token.deleteOne({ _userId: id });
   }
 
-  public async deleteByRefreshToken(refreshToken: string): Promise<void> {
-    await Token.deleteOne({ refreshToken });
+  public async deleteById(id: string): Promise<void> {
+    await Token.deleteOne({ _id: id });
   }
 }
 

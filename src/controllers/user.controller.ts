@@ -28,7 +28,7 @@ class UserController {
   public async getMe(req: Request, res: Response, next: NextFunction) {
     try {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
-      const user = await userService.findUser(jwtPayload.userId);
+      const user = await userService.findMe(jwtPayload.userId);
 
       res.status(200).json(user);
     } catch (e) {
@@ -36,11 +36,11 @@ class UserController {
     }
   }
 
-  public async update(req: Request, res: Response, next: NextFunction) {
+  public async updateMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       const dto = req.body as Partial<IUser>;
-      const updateUser = await userService.update(id, dto);
+      const updateUser = await userService.updateMe(jwtPayload.userId, dto);
 
       res.status(200).json(updateUser);
     } catch (e) {
@@ -48,10 +48,10 @@ class UserController {
     }
   }
 
-  public async deleteUser(req: Request, res: Response, next: NextFunction) {
+  public async deleteMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
-      await userService.deleteUser(id);
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+      await userService.deleteMe(jwtPayload.userId);
       res.sendStatus(204);
     } catch (e) {
       next(e);

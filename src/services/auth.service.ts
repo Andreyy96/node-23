@@ -1,5 +1,6 @@
 import { ApiError } from "../errors/api-error";
-import { ITokenResponse } from "../interfaces/token.interface";
+import { IJwtPayload } from "../interfaces/jwt-payload.interface";
+import { IToken, ITokenResponse } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
@@ -16,7 +17,6 @@ class AuthService {
       ...dto,
       password: hashedPassword,
     });
-
     const tokens = tokenService.generateToken({
       userId: user._id,
       role: user.role,
@@ -27,51 +27,52 @@ class AuthService {
       refreshToken: tokens.refreshToken,
       _userId: user._id,
     });
-
     return { user, tokens };
   }
 
   public async signIn(dto: {
     email: string;
     password: string;
-  }): Promise<{ user: IUser; tokens: Partial<ITokenResponse> }> {
-    const { email, password } = dto;
-    const user = await userRepository.getByParams({ email });
+  }): Promise<{ user: IUser; tokens: ITokenResponse }> {
+    const user = await userRepository.getByParams({ email: dto.email });
     if (!user) {
       throw new ApiError("Wrong email or password", 401);
     }
     const isCompare = await passwordService.comparePassword(
-      password,
+      dto.password,
       user.password,
     );
     if (!isCompare) {
       throw new ApiError("Wrong email or password", 401);
     }
-
     const tokens = tokenService.generateToken({
       userId: user._id,
       role: user.role,
     });
 
-    const userId = await tokenRepository.findByParams({ _userId: user._id });
-
-    if (!userId) {
-      await tokenRepository.create({
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-        _userId: user._id,
-      });
-
-      return { user, tokens };
-    }
-
-    await tokenRepository.update({
+    await tokenRepository.create({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       _userId: user._id,
     });
-
     return { user, tokens };
+  }
+
+  public async refresh(
+    jwtPayload: IJwtPayload,
+    oldPair: IToken,
+  ): Promise<ITokenResponse> {
+    const newPair = tokenService.generateToken({
+      userId: jwtPayload.userId,
+      role: jwtPayload.role,
+    });
+
+    await tokenRepository.deleteById(oldPair._id);
+    await tokenRepository.create({
+      ...newPair,
+      _userId: jwtPayload.userId,
+    });
+    return newPair;
   }
 
   private async isEmailExist(email: string): Promise<void> {

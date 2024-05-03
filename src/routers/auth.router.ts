@@ -3,19 +3,19 @@ import { Router } from "express";
 import { authController } from "../controllers/auth.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { commonMiddleware } from "../middlewares/common.middleware";
-import { AuthValidator } from "../validators/auth.validator";
+import { UserValidator } from "../validators/user.validator";
 
 const router = Router();
 
 router.post(
   "/sign-up",
-  commonMiddleware.isReqBodyValid(AuthValidator.schemaForRegister),
+  commonMiddleware.isReqBodyValid(UserValidator.schemaForRegister),
   authController.signUp,
 );
 
 router.post(
   "/sign-in",
-  commonMiddleware.isReqBodyValid(AuthValidator.schemaForLogin),
+  commonMiddleware.isReqBodyValid(UserValidator.schemaForLogin),
   authController.signIn,
 );
 

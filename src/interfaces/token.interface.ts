@@ -4,6 +4,7 @@ export interface ITokenPair {
 }
 
 export interface IToken extends ITokenPair {
+  _id?: string;
   _userId: string;
 }
 

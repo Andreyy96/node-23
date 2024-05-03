@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 
+import { IJwtPayload } from "../interfaces/jwt-payload.interface";
+import { IToken } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { authService } from "../services/auth.service";
-import { tokenService } from "../services/token.service";
 
 class AuthController {
   public async signUp(req: Request, res: Response, next: NextFunction) {
@@ -29,8 +30,10 @@ class AuthController {
 
   public async refresh(req: Request, res: Response, next: NextFunction) {
     try {
-      const refreshToken = req.headers.authorization;
-      const data = await tokenService.refresh(refreshToken);
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+      const tokenPair = req.res.locals.tokenPair as IToken;
+
+      const data = await authService.refresh(jwtPayload, tokenPair);
 
       res.status(201).json(data);
     } catch (e) {

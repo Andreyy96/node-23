@@ -3,7 +3,7 @@ import { User } from "../models/user.module";
 
 class UserRepository {
   public async getList(): Promise<IUser[]> {
-    return await User.find({});
+    return await User.find({ isDeleted: false });
   }
 
   public async create(dto: Partial<IUser>): Promise<IUser> {
@@ -14,7 +14,7 @@ class UserRepository {
     return await User.findById(id);
   }
 
-  public async update(id: string, dto: Partial<IUser>): Promise<IUser> {
+  public async updateById(id: string, dto: Partial<IUser>): Promise<IUser> {
     return await User.findByIdAndUpdate(id, dto, {
       returnDocument: "after",
     });
