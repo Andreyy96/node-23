@@ -1,6 +1,8 @@
 import * as jsonwebtoken from "jsonwebtoken";
 
 import { config } from "../configs/config";
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCodes } from "../constants/status-codes.constant";
 import { TokenTypeEnum } from "../enums/token-type.enum";
 import { ApiError } from "../errors/api-error";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
@@ -32,12 +34,18 @@ class TokenService {
       } else if (type === TokenTypeEnum.REFRESH) {
         secret = config.JWT_REFRESH_SECRET;
       } else {
-        throw new ApiError("Invalid token type", 401);
+        throw new ApiError(
+          errorMessages.INVALID_TOKEN_TYPE,
+          statusCodes.UNAUTHORIZED,
+        );
       }
 
       return jsonwebtoken.verify(token, secret) as IJwtPayload;
     } catch (error) {
-      throw new ApiError("Token is not valid", 401);
+      throw new ApiError(
+        errorMessages.TOKEN_IS_NOT_VALID,
+        statusCodes.UNAUTHORIZED,
+      );
     }
   }
 }

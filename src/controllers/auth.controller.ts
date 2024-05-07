@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 
+import { statusCodes } from "../constants/status-codes.constant";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IToken } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
+import { AuthPresenter } from "../presenters/auth.presenter";
 import { authService } from "../services/auth.service";
 
 class AuthController {
@@ -11,7 +13,7 @@ class AuthController {
       const dto = req.body as Partial<IUser>;
       const data = await authService.signUp(dto);
 
-      res.status(201).json(data);
+      res.status(statusCodes.CREATED).json(AuthPresenter.toResponseDto(data));
     } catch (e) {
       next(e);
     }
@@ -22,7 +24,7 @@ class AuthController {
       const dto = req.body as { email: string; password: string };
       const data = await authService.signIn(dto);
 
-      res.status(201).json(data);
+      res.status(statusCodes.CREATED).json(AuthPresenter.toResponseDto(data));
     } catch (e) {
       next(e);
     }
@@ -35,7 +37,7 @@ class AuthController {
 
       const data = await authService.refresh(jwtPayload, tokenPair);
 
-      res.status(201).json(data);
+      res.status(statusCodes.CREATED).json(data);
     } catch (e) {
       next(e);
     }

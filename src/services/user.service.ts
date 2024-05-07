@@ -1,12 +1,17 @@
+import { config } from "../configs/config";
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCodes } from "../constants/status-codes.constant";
+import { EmailTypeEnum } from "../enums/email-type.enum";
 import { ApiError } from "../errors/api-error";
 import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
+import { emailService } from "./email.service";
 
 class UserService {
   private async check(id: string): Promise<IUser> {
     const user = await userRepository.findUser(id);
     if (!user) {
-      throw new ApiError("user not found", 404);
+      throw new ApiError(errorMessages.USER_NOT_FOUND, statusCodes.NOT_FOUND);
     }
     return user;
   }
@@ -28,8 +33,11 @@ class UserService {
     return await userRepository.updateById(id, dto);
   }
 
-  public async deleteMe(id: string): Promise<void> {
+  public async deleteMe(id: string, user: IUser): Promise<void> {
     await this.check(id);
+    await emailService.sendByType(user.email, EmailTypeEnum.DELETE_ACCOUNT, {
+      frontUrl: config.FRONT_URL,
+    });
     await userRepository.updateById(id, { isDeleted: true });
   }
 }
