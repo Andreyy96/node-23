@@ -3,6 +3,7 @@ import * as jsonwebtoken from "jsonwebtoken";
 import { config } from "../configs/config";
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCodes } from "../constants/status-codes.constant";
+import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 import { TokenTypeEnum } from "../enums/token-type.enum";
 import { ApiError } from "../errors/api-error";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
@@ -46,6 +47,53 @@ class TokenService {
         errorMessages.TOKEN_IS_NOT_VALID,
         statusCodes.UNAUTHORIZED,
       );
+    }
+  }
+
+  public generateActionToken(
+    payload: IJwtPayload,
+    type: ActionTokenTypeEnum,
+  ): string {
+    let secret: string;
+    let expiresIn: string;
+
+    if (type === ActionTokenTypeEnum.FORGOT) {
+      secret = config.JWT_ACTION_FORGOT_TOKEN_SECRET;
+      expiresIn = config.JWT_ACTION_FORGOT_EXPIRES_IN;
+    } else if (type === ActionTokenTypeEnum.VERIFY) {
+      secret = config.JWT_ACTION_VERIFY_SECRET;
+      expiresIn = config.JWT_ACTION_VERIFY_IN;
+    } else {
+      throw new ApiError(
+        errorMessages.INVALID_TOKEN_TYPE,
+        statusCodes.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return jsonwebtoken.sign(payload, secret, { expiresIn });
+  }
+
+  public checkActionToken(
+    token: string,
+    type: ActionTokenTypeEnum,
+  ): IJwtPayload {
+    try {
+      let secret: string;
+
+      if (type === ActionTokenTypeEnum.FORGOT) {
+        secret = config.JWT_ACTION_FORGOT_TOKEN_SECRET;
+      } else if (type === ActionTokenTypeEnum.VERIFY) {
+        secret = config.JWT_ACTION_VERIFY_SECRET;
+      } else {
+        throw new ApiError(
+          errorMessages.INVALID_TOKEN_TYPE,
+          statusCodes.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      return jsonwebtoken.verify(token, secret) as IJwtPayload;
+    } catch (error) {
+      throw new ApiError("Token is not valid", statusCodes.UNAUTHORIZED);
     }
   }
 }

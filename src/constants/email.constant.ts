@@ -3,11 +3,11 @@ import { EmailTypeEnum } from "../enums/email-type.enum";
 export const emailTemplateConstant = {
   [EmailTypeEnum.WELCOME]: {
     templateName: "register",
-    subject: "Wellcom to our app",
+    subject: "Welcome to our app",
   },
   [EmailTypeEnum.RESET_PASSWORD]: {
     templateName: "reset-password",
-    subject: "Your password has been reset",
+    subject: "Change forgot password",
   },
   [EmailTypeEnum.DELETE_ACCOUNT]: {
     templateName: "delete-account",
