@@ -1,6 +1,9 @@
+import { config } from "../configs/config";
+import { EmailTypeEnum } from "../enums/email-type.enum";
 import { ApiError } from "../errors/api-error";
 import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
+import { sendGridService } from "./send-grid.service";
 
 class UserService {
   private async check(id: string): Promise<IUser> {
@@ -29,7 +32,10 @@ class UserService {
   }
 
   public async deleteMe(id: string): Promise<void> {
-    await this.check(id);
+    const user = await this.check(id);
+    await sendGridService.sendByType(user.email, EmailTypeEnum.DELETE_ACCOUNT, {
+      frontUrl: config.FRONT_URL,
+    });
     await userRepository.updateById(id, { isDeleted: true });
   }
 }
