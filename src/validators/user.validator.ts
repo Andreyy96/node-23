@@ -33,4 +33,16 @@ export class UserValidator {
       age: Joi.number().min(18).max(100),
     },
   );
+
+  public static forgotPassword = Joi.object({
+    email: Joi.string()
+      .regex(regexConstant.EMAIL)
+      .lowercase()
+      .trim()
+      .required(),
+  });
+
+  public static setForgotPassword = Joi.object({
+    password: Joi.string().regex(regexConstant.PASSWORD).trim().required(),
+  });
 }

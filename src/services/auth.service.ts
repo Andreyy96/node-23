@@ -1,9 +1,12 @@
 import { config } from "../configs/config";
+import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 import { EmailTypeEnum } from "../enums/email-type.enum";
 import { ApiError } from "../errors/api-error";
+import { IForgot, ISetForgot } from "../interfaces/action-token.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IToken, ITokenResponse } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
+import { actionTokenRepository } from "../repositories/action-token.repository";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
 import { passwordService } from "./password.service";
@@ -83,6 +86,42 @@ class AuthService {
       _userId: jwtPayload.userId,
     });
     return newPair;
+  }
+
+  public async forgotPassword(dto: IForgot): Promise<void> {
+    const user = await userRepository.getByParams({ email: dto.email });
+
+    if (!user) return;
+
+    const actionToken = tokenService.generateActionToken(
+      { userId: user._id, role: user.role },
+      ActionTokenTypeEnum.FORGOT,
+    );
+
+    await actionTokenRepository.create({
+      _userId: user._id,
+      actionToken,
+      tokenType: ActionTokenTypeEnum.FORGOT,
+    });
+
+    await sendGridService.sendByType(user.email, EmailTypeEnum.RESET_PASSWORD, {
+      actionToken,
+      frontUrl: config.FRONT_URL,
+    });
+  }
+
+  public async setForgotPassword(
+    dto: ISetForgot,
+    jwtPayload: IJwtPayload,
+  ): Promise<void> {
+    const user = await userRepository.findUser(jwtPayload.userId);
+    const hashedPassword = await passwordService.hashPassword(dto.password);
+
+    await userRepository.updateById(user._id, { password: hashedPassword });
+    await actionTokenRepository.deleteByParams({
+      tokenType: ActionTokenTypeEnum.FORGOT,
+    });
+    await tokenRepository.deleteByParams({ _userId: user._id });
   }
 
   private async isEmailExist(email: string): Promise<void> {

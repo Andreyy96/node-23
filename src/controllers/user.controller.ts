@@ -2,13 +2,15 @@ import { NextFunction, Request, Response } from "express";
 
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IUser } from "../interfaces/user.interface";
+import { UserPresenter } from "../presenters/user.presenter";
 import { userService } from "../services/user.service";
 
 class UserController {
   public async getList(req: Request, res: Response, next: NextFunction) {
     try {
       const users: IUser[] = await userService.getList();
-      res.json(users);
+      const response = UserPresenter.toPublicResponseListDto(users);
+      res.json(response);
     } catch (e) {
       next(e);
     }
@@ -18,8 +20,8 @@ class UserController {
     try {
       const { id } = req.params;
       const user = await userService.findUser(id);
-
-      res.status(200).json(user);
+      const response = UserPresenter.toPublicResponseDto(user);
+      res.status(200).json(response);
     } catch (e) {
       next(e);
     }
@@ -29,8 +31,8 @@ class UserController {
     try {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       const user = await userService.findMe(jwtPayload.userId);
-
-      res.status(200).json(user);
+      const response = UserPresenter.toPrivateResponseDto(user);
+      res.status(200).json(response);
     } catch (e) {
       next(e);
     }
@@ -41,8 +43,9 @@ class UserController {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       const dto = req.body as Partial<IUser>;
       const updateUser = await userService.updateMe(jwtPayload.userId, dto);
+      const response = UserPresenter.toPrivateResponseDto(updateUser);
 
-      res.status(200).json(updateUser);
+      res.status(200).json(response);
     } catch (e) {
       next(e);
     }
