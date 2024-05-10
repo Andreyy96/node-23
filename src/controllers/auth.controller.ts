@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 
+import { statusCodes } from "../constants/status-codes.constant";
 import { IForgot, ISetForgot } from "../interfaces/action-token.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IToken } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { AuthPresenter } from "../presenters/auth.presenter";
+import { UserPresenter } from "../presenters/user.presenter";
 import { authService } from "../services/auth.service";
 
 class AuthController {
@@ -15,7 +17,7 @@ class AuthController {
 
       const response = AuthPresenter.toResponseDto(data);
 
-      res.status(201).json(response);
+      res.status(statusCodes.CREATED).json(response);
     } catch (e) {
       next(e);
     }
@@ -28,7 +30,7 @@ class AuthController {
 
       const response = AuthPresenter.toResponseDto(data);
 
-      res.status(201).json(response);
+      res.status(statusCodes.CREATED).json(response);
     } catch (e) {
       next(e);
     }
@@ -41,7 +43,7 @@ class AuthController {
 
       const data = await authService.refresh(jwtPayload, tokenPair);
 
-      res.status(201).json(data);
+      res.status(statusCodes.CREATED).json(data);
     } catch (e) {
       next(e);
     }
@@ -51,7 +53,7 @@ class AuthController {
     try {
       const body = req.body as IForgot;
       await authService.forgotPassword(body);
-      res.sendStatus(204);
+      res.sendStatus(statusCodes.NO_CONTENT);
     } catch (e) {
       next(e);
     }
@@ -66,10 +68,18 @@ class AuthController {
       const body = req.body as ISetForgot;
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       await authService.setForgotPassword(body, jwtPayload);
-      res.sendStatus(204);
+      res.sendStatus(statusCodes.NO_CONTENT);
     } catch (e) {
       next(e);
     }
+  }
+
+  public async verify(req: Request, res: Response, next: NextFunction) {
+    const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+    const user = await authService.verify(jwtPayload);
+    res
+      .status(statusCodes.CREATED)
+      .json(UserPresenter.toPrivateResponseDto(user));
   }
 }
 

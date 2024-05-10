@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
+import { statusCodes } from "../constants/status-codes.constant";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IUser } from "../interfaces/user.interface";
 import { UserPresenter } from "../presenters/user.presenter";
@@ -21,7 +22,7 @@ class UserController {
       const { id } = req.params;
       const user = await userService.findUser(id);
       const response = UserPresenter.toPublicResponseDto(user);
-      res.status(200).json(response);
+      res.status(statusCodes.OK).json(response);
     } catch (e) {
       next(e);
     }
@@ -32,7 +33,7 @@ class UserController {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       const user = await userService.findMe(jwtPayload.userId);
       const response = UserPresenter.toPrivateResponseDto(user);
-      res.status(200).json(response);
+      res.status(statusCodes.OK).json(response);
     } catch (e) {
       next(e);
     }
@@ -45,7 +46,7 @@ class UserController {
       const updateUser = await userService.updateMe(jwtPayload.userId, dto);
       const response = UserPresenter.toPrivateResponseDto(updateUser);
 
-      res.status(200).json(response);
+      res.status(statusCodes.OK).json(response);
     } catch (e) {
       next(e);
     }
@@ -55,7 +56,7 @@ class UserController {
     try {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       await userService.deleteMe(jwtPayload.userId);
-      res.sendStatus(204);
+      res.sendStatus(statusCodes.NO_CONTENT);
     } catch (e) {
       next(e);
     }

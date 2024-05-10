@@ -3,6 +3,7 @@ import SendGrid from "@sendgrid/mail";
 
 import { config } from "../configs/config";
 import { emailTemplateConstant } from "../constants/email-template.constant";
+import { errorMessages } from "../constants/error-messages.constant";
 import { EmailTypeEnum } from "../enums/email-type.enum";
 import { EmailTypeToPayloadType } from "../types/email-type-to-payload.type";
 
@@ -25,7 +26,7 @@ class SendGridService {
         dynamicTemplateData,
       });
     } catch (error) {
-      console.error("Error email: ", error);
+      console.error(errorMessages.ERROR_EMAIL, error);
     }
   }
 
@@ -33,7 +34,7 @@ class SendGridService {
     try {
       await SendGrid.send(email);
     } catch (error) {
-      console.error("Error email: ", error);
+      console.error(errorMessages.ERROR_EMAIL, error);
     }
   }
 }

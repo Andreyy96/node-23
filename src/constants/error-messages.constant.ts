@@ -7,4 +7,5 @@ export const errorMessages = {
   INVALID_TOKEN_TYPE: "Invalid token type",
   TOKEN_IS_NOT_VALID: "Token is not valid",
   USER_NOT_FOUND: "user not found",
+  ERROR_EMAIL: "Error email: ",
 };

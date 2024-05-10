@@ -39,4 +39,10 @@ router.put(
   authController.setForgotPassword,
 );
 
+router.put(
+  "/verify",
+  authMiddleware.checkActionToken(ActionTokenTypeEnum.VERIFY),
+  authController.verify,
+);
+
 export const authRouter = router;

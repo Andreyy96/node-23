@@ -1,4 +1,6 @@
 import { config } from "../configs/config";
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCodes } from "../constants/status-codes.constant";
 import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 import { EmailTypeEnum } from "../enums/email-type.enum";
 import { ApiError } from "../errors/api-error";
@@ -34,11 +36,24 @@ class AuthService {
       _userId: user._id,
     });
 
-    await sendGridService.sendByType(user.email, EmailTypeEnum.WELCOME, {
-      name: dto.name,
-      frontUrl: config.FRONT_URL,
-      actionToken: "actionToken",
+    const actionToken = tokenService.generateActionToken(
+      { userId: user._id, role: user.role },
+      ActionTokenTypeEnum.VERIFY,
+    );
+
+    await actionTokenRepository.create({
+      _userId: user._id,
+      actionToken,
+      tokenType: ActionTokenTypeEnum.VERIFY,
     });
+
+    await Promise.all([
+      sendGridService.sendByType(user.email, EmailTypeEnum.WELCOME, {
+        name: dto.name,
+        frontUrl: config.FRONT_URL,
+        actionToken,
+      }),
+    ]);
 
     return { user, tokens };
   }
@@ -49,14 +64,20 @@ class AuthService {
   }): Promise<{ user: IUser; tokens: ITokenResponse }> {
     const user = await userRepository.getByParams({ email: dto.email });
     if (!user) {
-      throw new ApiError("Wrong email or password", 401);
+      throw new ApiError(
+        errorMessages.WRONG_EMAIL_OR_PASSWORD,
+        statusCodes.UNAUTHORIZED,
+      );
     }
     const isCompare = await passwordService.comparePassword(
       dto.password,
       user.password,
     );
     if (!isCompare) {
-      throw new ApiError("Wrong email or password", 401);
+      throw new ApiError(
+        errorMessages.WRONG_EMAIL_OR_PASSWORD,
+        statusCodes.UNAUTHORIZED,
+      );
     }
     const tokens = tokenService.generateToken({
       userId: user._id,
@@ -124,10 +145,24 @@ class AuthService {
     await tokenRepository.deleteByParams({ _userId: user._id });
   }
 
+  public async verify(dto: IJwtPayload): Promise<IUser> {
+    const [user] = await Promise.all([
+      userRepository.updateById(dto.userId, { isVerified: true }),
+      actionTokenRepository.deleteByParams({
+        tokenType: ActionTokenTypeEnum.VERIFY,
+      }),
+    ]);
+
+    return user;
+  }
+
   private async isEmailExist(email: string): Promise<void> {
     const user = await userRepository.getByParams({ email });
     if (user) {
-      throw new ApiError("email already exist", 409);
+      throw new ApiError(
+        errorMessages.EMAIL_ALREADY_EXIST,
+        statusCodes.CONFLICT,
+      );
     }
   }
 }

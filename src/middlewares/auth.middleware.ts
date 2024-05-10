@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
+import { errorMessages } from "../constants/error-messages.constant";
 import { statusCodes } from "../constants/status-codes.constant";
 import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 import { TokenTypeEnum } from "../enums/token-type.enum";
@@ -17,13 +18,19 @@ class AuthMiddleware {
     try {
       const accessToken = req.headers.authorization;
       if (!accessToken) {
-        throw new ApiError("No token provided", 401);
+        throw new ApiError(
+          errorMessages.NO_TOKEN_PROVIDER,
+          statusCodes.UNAUTHORIZED,
+        );
       }
 
       const tokenPair = await tokenRepository.findByParams({ accessToken });
 
       if (!tokenPair) {
-        throw new ApiError("Invalid token", 401);
+        throw new ApiError(
+          errorMessages.INVALID_TOKEN,
+          statusCodes.UNAUTHORIZED,
+        );
       }
 
       req.res.locals.jwtPayload = tokenService.checkToken(
@@ -44,13 +51,19 @@ class AuthMiddleware {
     try {
       const refreshToken = req.headers.authorization;
       if (!refreshToken) {
-        throw new ApiError("No token provided", 401);
+        throw new ApiError(
+          errorMessages.NO_TOKEN_PROVIDER,
+          statusCodes.UNAUTHORIZED,
+        );
       }
 
       const tokenPair = await tokenRepository.findByParams({ refreshToken });
 
       if (!tokenPair) {
-        throw new ApiError("Invalid token", 401);
+        throw new ApiError(
+          errorMessages.INVALID_TOKEN,
+          statusCodes.UNAUTHORIZED,
+        );
       }
 
       req.res.locals.jwtPayload = tokenService.checkToken(
@@ -69,7 +82,10 @@ class AuthMiddleware {
       try {
         const actionToken = req.query[key] as string;
         if (!actionToken) {
-          throw new ApiError("No token provided", statusCodes.BAD_REQUEST);
+          throw new ApiError(
+            errorMessages.NO_TOKEN_PROVIDER,
+            statusCodes.BAD_REQUEST,
+          );
         }
         const payload = tokenService.checkActionToken(actionToken, type);
 
@@ -77,7 +93,10 @@ class AuthMiddleware {
           actionToken,
         });
         if (!entity) {
-          throw new ApiError("Invalid token", statusCodes.UNAUTHORIZED);
+          throw new ApiError(
+            errorMessages.INVALID_TOKEN,
+            statusCodes.UNAUTHORIZED,
+          );
         }
         req.res.locals.jwtPayload = payload;
         next();

@@ -59,6 +59,7 @@ class TokenService {
       case ActionTokenTypeEnum.VERIFY:
         secret = config.JWT_ACTION_VERIFY_SECRET;
         expiresIn = config.JWT_ACTION_VERIFY_EXPIRES_IN;
+        break;
       default:
         throw new ApiError(
           errorMessages.INVALID_TOKEN_TYPE,
@@ -93,7 +94,10 @@ class TokenService {
 
       return jsonwebtoken.verify(token, secret) as IJwtPayload;
     } catch (error) {
-      throw new ApiError("Token is not valid", statusCodes.UNAUTHORIZED);
+      throw new ApiError(
+        errorMessages.TOKEN_IS_NOT_VALID,
+        statusCodes.UNAUTHORIZED,
+      );
     }
   }
 }

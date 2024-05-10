@@ -1,4 +1,6 @@
 import { config } from "../configs/config";
+import { errorMessages } from "../constants/error-messages.constant";
+import { statusCodes } from "../constants/status-codes.constant";
 import { EmailTypeEnum } from "../enums/email-type.enum";
 import { ApiError } from "../errors/api-error";
 import { IUser } from "../interfaces/user.interface";
@@ -9,7 +11,7 @@ class UserService {
   private async check(id: string): Promise<IUser> {
     const user = await userRepository.findUser(id);
     if (!user) {
-      throw new ApiError("user not found", 404);
+      throw new ApiError(errorMessages.USER_NOT_FOUND, statusCodes.NOT_FOUND);
     }
     return user;
   }
