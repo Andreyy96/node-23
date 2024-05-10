@@ -45,4 +45,9 @@ export class UserValidator {
   public static setForgotPassword = Joi.object({
     password: Joi.string().regex(regexConstant.PASSWORD).trim().required(),
   });
+
+  public static setChangePassword = Joi.object({
+    oldPassword: Joi.string().regex(regexConstant.PASSWORD).trim().required(),
+    newPassword: Joi.string().regex(regexConstant.PASSWORD).trim().required(),
+  });
 }

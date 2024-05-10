@@ -7,7 +7,7 @@ import { ApiError } from "../errors/api-error";
 import { IForgot, ISetForgot } from "../interfaces/action-token.interface";
 import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IToken, ITokenResponse } from "../interfaces/token.interface";
-import { IUser } from "../interfaces/user.interface";
+import { IChangePassword, IUser } from "../interfaces/user.interface";
 import { actionTokenRepository } from "../repositories/action-token.repository";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
@@ -36,24 +36,24 @@ class AuthService {
       _userId: user._id,
     });
 
-    const actionToken = tokenService.generateActionToken(
-      { userId: user._id, role: user.role },
-      ActionTokenTypeEnum.VERIFY,
-    );
-
-    await actionTokenRepository.create({
-      _userId: user._id,
-      actionToken,
-      tokenType: ActionTokenTypeEnum.VERIFY,
-    });
-
-    await Promise.all([
-      sendGridService.sendByType(user.email, EmailTypeEnum.WELCOME, {
-        name: dto.name,
-        frontUrl: config.FRONT_URL,
-        actionToken,
-      }),
-    ]);
+    // const actionToken = tokenService.generateActionToken(
+    //   { userId: user._id, role: user.role },
+    //   ActionTokenTypeEnum.VERIFY,
+    // );
+    //
+    // await actionTokenRepository.create({
+    //   _userId: user._id,
+    //   actionToken,
+    //   tokenType: ActionTokenTypeEnum.VERIFY,
+    // });
+    //
+    // await Promise.all([
+    //   sendGridService.sendByType(user.email, EmailTypeEnum.WELCOME, {
+    //     name: dto.name,
+    //     frontUrl: config.FRONT_URL,
+    //     actionToken,
+    //   }),
+    // ]);
 
     return { user, tokens };
   }
@@ -154,6 +154,28 @@ class AuthService {
     ]);
 
     return user;
+  }
+  public async changePassword(
+    dto: IChangePassword,
+    jwtPayload: IJwtPayload,
+  ): Promise<void> {
+    const user = await userRepository.findUser(jwtPayload.userId);
+    const isCompare = await passwordService.comparePassword(
+      dto.oldPassword,
+      user.password,
+    );
+
+    if (!isCompare) {
+      throw new ApiError(
+        errorMessages.WRONG_EMAIL_OR_PASSWORD,
+        statusCodes.UNAUTHORIZED,
+      );
+    }
+
+    const hashedPassword = await passwordService.hashPassword(dto.newPassword);
+
+    await userRepository.updateById(user._id, { password: hashedPassword });
+    await tokenRepository.deleteByParams({ _userId: user._id });
   }
 
   private async isEmailExist(email: string): Promise<void> {

@@ -1,7 +1,6 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 
 import { IToken } from "../interfaces/token.interface";
-import { ActionToken } from "../models/action-token.model";
 import { Token } from "../models/token.model";
 
 class TokenRepository {
@@ -17,7 +16,7 @@ class TokenRepository {
   }
 
   public async deleteByParams(params: FilterQuery<IToken>): Promise<void> {
-    await ActionToken.deleteMany(params);
+    await Token.deleteMany(params);
   }
 
   public async deleteById(id: string): Promise<void> {
