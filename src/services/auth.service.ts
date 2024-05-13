@@ -48,9 +48,9 @@ class AuthService {
     });
 
     await emailService.sendByType(dto.email, EmailTypeEnum.WELCOME, {
-      name: dto.name,
+      name: user.name,
       frontUrl: config.FRONT_URL,
-      actionToken: actionToken,
+      actionToken,
     });
     return { user, tokens };
   }

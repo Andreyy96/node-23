@@ -35,18 +35,12 @@ class TokenService {
       } else if (type === TokenTypeEnum.REFRESH) {
         secret = config.JWT_REFRESH_SECRET;
       } else {
-        throw new ApiError(
-          errorMessages.INVALID_TOKEN_TYPE,
-          statusCodes.UNAUTHORIZED,
-        );
+        throw new ApiError("Invalid token type", 401);
       }
 
       return jsonwebtoken.verify(token, secret) as IJwtPayload;
     } catch (error) {
-      throw new ApiError(
-        errorMessages.TOKEN_IS_NOT_VALID,
-        statusCodes.UNAUTHORIZED,
-      );
+      throw new ApiError("Token is not valid", 401);
     }
   }
 
@@ -57,19 +51,21 @@ class TokenService {
     let secret: string;
     let expiresIn: string;
 
-    if (type === ActionTokenTypeEnum.FORGOT) {
-      secret = config.JWT_ACTION_FORGOT_TOKEN_SECRET;
-      expiresIn = config.JWT_ACTION_FORGOT_EXPIRES_IN;
-    } else if (type === ActionTokenTypeEnum.VERIFY) {
-      secret = config.JWT_ACTION_VERIFY_SECRET;
-      expiresIn = config.JWT_ACTION_VERIFY_IN;
-    } else {
-      throw new ApiError(
-        errorMessages.INVALID_TOKEN_TYPE,
-        statusCodes.INTERNAL_SERVER_ERROR,
-      );
+    switch (type) {
+      case ActionTokenTypeEnum.FORGOT:
+        secret = config.JWT_ACTION_FORGOT_TOKEN_SECRET;
+        expiresIn = config.JWT_ACTION_FORGOT_EXPIRES_IN;
+        break;
+      case ActionTokenTypeEnum.VERIFY:
+        secret = config.JWT_ACTION_VERIFY_SECRET;
+        expiresIn = config.JWT_ACTION_VERIFY_EXPIRES_IN;
+        break;
+      default:
+        throw new ApiError(
+          errorMessages.INVALID_TOKEN_TYPE,
+          statusCodes.INTERNAL_SERVER_ERROR,
+        );
     }
-
     return jsonwebtoken.sign(payload, secret, { expiresIn });
   }
 
@@ -80,20 +76,28 @@ class TokenService {
     try {
       let secret: string;
 
-      if (type === ActionTokenTypeEnum.FORGOT) {
-        secret = config.JWT_ACTION_FORGOT_TOKEN_SECRET;
-      } else if (type === ActionTokenTypeEnum.VERIFY) {
-        secret = config.JWT_ACTION_VERIFY_SECRET;
-      } else {
-        throw new ApiError(
-          errorMessages.INVALID_TOKEN_TYPE,
-          statusCodes.INTERNAL_SERVER_ERROR,
-        );
+      switch (type) {
+        case ActionTokenTypeEnum.FORGOT:
+          secret = config.JWT_ACTION_FORGOT_TOKEN_SECRET;
+          break;
+
+        case ActionTokenTypeEnum.VERIFY:
+          secret = config.JWT_ACTION_VERIFY_SECRET;
+          break;
+
+        default:
+          throw new ApiError(
+            errorMessages.INVALID_TOKEN_TYPE,
+            statusCodes.INTERNAL_SERVER_ERROR,
+          );
       }
 
       return jsonwebtoken.verify(token, secret) as IJwtPayload;
     } catch (error) {
-      throw new ApiError("Token is not valid", statusCodes.UNAUTHORIZED);
+      throw new ApiError(
+        errorMessages.TOKEN_IS_NOT_VALID,
+        statusCodes.UNAUTHORIZED,
+      );
     }
   }
 }
