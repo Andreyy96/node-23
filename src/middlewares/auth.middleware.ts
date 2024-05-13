@@ -111,38 +111,33 @@ class AuthMiddleware {
     }
   }
 
-  public async checkActionVerifyToken(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
-    try {
-      const actionToken = req.query.token as string;
-      if (!actionToken) {
-        throw new ApiError(
-          errorMessages.NO_TOKEN_PROVIDER,
-          statusCodes.BAD_REQUEST,
-        );
-      }
-      const payload = tokenService.checkActionToken(
-        actionToken,
-        ActionTokenTypeEnum.VERIFY,
-      );
+  public checkActionToken(type: ActionTokenTypeEnum, key = "token") {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const actionToken = req.query[key] as string;
+        if (!actionToken) {
+          throw new ApiError(
+            errorMessages.NO_TOKEN_PROVIDER,
+            statusCodes.BAD_REQUEST,
+          );
+        }
+        const payload = tokenService.checkActionToken(actionToken, type);
 
-      const entity = await actionTokenRepository.findByParams({
-        actionToken,
-      });
-      if (!entity) {
-        throw new ApiError(
-          errorMessages.INVALID_TOKEN,
-          statusCodes.UNAUTHORIZED,
-        );
+        const entity = await actionTokenRepository.findByParams({
+          actionToken,
+        });
+        if (!entity) {
+          throw new ApiError(
+            errorMessages.INVALID_TOKEN,
+            statusCodes.UNAUTHORIZED,
+          );
+        }
+        req.res.locals.jwtPayload = payload;
+        next();
+      } catch (e) {
+        next(e);
       }
-      req.res.locals.jwtPayload = payload;
-      next();
-    } catch (e) {
-      next(e);
-    }
+    };
   }
 }
 

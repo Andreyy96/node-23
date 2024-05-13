@@ -142,15 +142,15 @@ class AuthService {
     await tokenRepository.deleteByParams({ _userId: user._id });
   }
 
-  public async verify(jwtPayload: IJwtPayload) {
-    const user = await userRepository.getByParams({ _id: jwtPayload.userId });
+  public async verify(dto: IJwtPayload): Promise<IUser> {
+    const [user] = await Promise.all([
+      userRepository.updateById(dto.userId, { isVerified: true }),
+      actionTokenRepository.deleteByParams({
+        tokenType: ActionTokenTypeEnum.VERIFY,
+      }),
+    ]);
 
-    if (!user) return;
-
-    await userRepository.updateById(user._id, { isVerified: true });
-    await actionTokenRepository.deleteByParams({
-      tokenType: ActionTokenTypeEnum.VERIFY,
-    });
+    return user;
   }
 
   private async isEmailExist(email: string): Promise<void> {

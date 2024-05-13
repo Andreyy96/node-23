@@ -6,6 +6,7 @@ import { IJwtPayload } from "../interfaces/jwt-payload.interface";
 import { IToken } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { AuthPresenter } from "../presenters/auth.presenter";
+import { UserPresenter } from "../presenters/user.presenter";
 import { authService } from "../services/auth.service";
 
 class AuthController {
@@ -72,8 +73,11 @@ class AuthController {
   public async verify(req: Request, res: Response, next: NextFunction) {
     try {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
-      await authService.verify(jwtPayload);
-      res.sendStatus(statusCodes.NO_CONTENT);
+      const user = await authService.verify(jwtPayload);
+
+      res
+        .status(statusCodes.CREATED)
+        .json(UserPresenter.toPrivateResponseDto(user));
     } catch (e) {
       next(e);
     }
