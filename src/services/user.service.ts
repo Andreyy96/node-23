@@ -1,11 +1,15 @@
+import { UploadedFile } from "express-fileupload";
+
 import { config } from "../configs/config";
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCodes } from "../constants/status-codes.constant";
 import { EmailTypeEnum } from "../enums/email-type.enum";
+import { FileItemTypeEnum } from "../enums/file-item-type.enum";
 import { ApiError } from "../errors/api-error";
 import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
 import { emailService } from "./email.service";
+import { s3Service } from "./s3.service";
 
 class UserService {
   private async check(id: string): Promise<IUser> {
@@ -39,6 +43,21 @@ class UserService {
       frontUrl: config.FRONT_URL,
     });
     await userRepository.updateById(id, { isDeleted: true });
+  }
+
+  public async uploadAvatar(
+    userId: string,
+    avatar: UploadedFile,
+  ): Promise<IUser> {
+    const user = await this.check(userId);
+
+    const filePath = await s3Service.uploadFile(
+      avatar,
+      FileItemTypeEnum.USER,
+      user._id,
+    );
+
+    return await userRepository.updateById(userId, { avatar: filePath });
   }
 }
 

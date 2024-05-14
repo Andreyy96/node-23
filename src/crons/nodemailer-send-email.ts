@@ -28,4 +28,4 @@ const handler = async () => {
   }
 };
 
-export const sendComeBackEmail = new CronJob("* * * * * *", handler);
+export const sendComeBackEmail = new CronJob("* * 4 * * *", handler);
