@@ -17,4 +17,8 @@ export const emailTemplateConstant = {
     templateName: "logout",
     subject: "LOGOUT",
   },
+  [EmailTypeEnum.COME_BACK]: {
+    templateName: "come-back",
+    subject: "Come back",
+  },
 };

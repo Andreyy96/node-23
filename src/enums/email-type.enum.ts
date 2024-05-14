@@ -3,4 +3,5 @@ export enum EmailTypeEnum {
   RESET_PASSWORD = "resetPassword",
   DELETE_ACCOUNT = "deleteAccount",
   LOGOUT = "logout",
+  COME_BACK = "comeBack",
 }
