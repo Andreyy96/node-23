@@ -67,11 +67,22 @@ class UserController {
     try {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
       const avatar = req.files?.avatar as UploadedFile;
-      console.log(req.files);
 
       const user = await userService.uploadAvatar(jwtPayload.userId, avatar);
       const response = UserPresenter.toPrivateResponseDto(user);
       res.status(201).json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async deleteAvatar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
+
+      await userService.deleteAvatar(jwtPayload.userId);
+
+      res.sendStatus(statusCodes.NO_CONTENT);
     } catch (e) {
       next(e);
     }
