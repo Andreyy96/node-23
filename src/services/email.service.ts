@@ -18,8 +18,8 @@ class EmailService {
       from: "No reply",
       service: "gmail",
       auth: {
-        user: config.NAME_ACCAOUNT_GMAIL,
-        pass: config.PASSWORD_ACCAOUNT_GMAIL,
+        user: config.NAME_ACCOUNT_GMAIL,
+        pass: config.PASSWORD_ACCOUNT_GMAIL,
       },
     });
 

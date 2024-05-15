@@ -80,9 +80,11 @@ class UserController {
     try {
       const jwtPayload = req.res.locals.jwtPayload as IJwtPayload;
 
-      await userService.deleteAvatar(jwtPayload.userId);
+      const user = await userService.deleteAvatar(jwtPayload.userId);
 
-      res.sendStatus(statusCodes.NO_CONTENT);
+      res
+        .status(statusCodes.CREATED)
+        .json(UserPresenter.toPrivateResponseDto(user));
     } catch (e) {
       next(e);
     }

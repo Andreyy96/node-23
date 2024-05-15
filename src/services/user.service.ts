@@ -64,17 +64,14 @@ class UserService {
     return await userRepository.updateById(userId, { avatar: filePath });
   }
 
-  public async deleteAvatar(userId: string): Promise<void> {
+  public async deleteAvatar(userId: string): Promise<IUser> {
     const user = await this.check(userId);
 
     if (!user.avatar) {
-      throw new ApiError(
-        errorMessages.USER_DOES_NOT_HAVE_AVATAR,
-        statusCodes.UNAUTHORIZED,
-      );
+      await s3Service.deleteFile(user.avatar);
     }
 
-    await s3Service.deleteFile(user.avatar);
+    return await userRepository.updateById(userId, { avatar: null });
   }
 }
 
