@@ -1,0 +1,687 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This api is for testing the swagger ui",
+    "version": "1.0.7",
+    "title": "Express API",
+    "contact": {
+      "email": "test@gmail.com"
+    }
+  },
+  "host": "0.0.0.0:3100",
+  "tags": [
+    {
+      "name": "user",
+      "description": "Operations about user"
+    },
+    {
+      "name": "auth",
+      "description": "Operations about auth"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/users/me": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get me",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "getMyUser",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PrivateUserResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["user"],
+        "summary": "Update me",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "updateMyUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "security": [{"jwt_token": []}],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateUserDTO"
+
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PrivateUserResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid user supplied"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Delete me",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "deleteUser",
+        "security": [{"jwt_token": []}],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PrivateUserResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid file"
+          }
+        }
+      }
+    },
+    "/users/me/avatar": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Add my avatar",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "createUserAvatar",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "security": [{"jwt_token": []}],
+        "parameters": [
+          {
+            "name": "avatar",
+            "in": "formData",
+            "description": "The file must be one of this image/png, image/jpeg, image/jpg",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PrivateUserResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid avatar supplied"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Delete my avatar",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "deleteUserAvatar",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "security": [{"jwt_token": []}],
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PrivateUserResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Get user by by _id",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "getUser",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User id to find",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/PublicUserResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/auth/sign-up": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Create user",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "createUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Created user object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SchemaForCreateUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "create",
+            "schema": {
+              "$ref": "#/definitions/PrivateUserResponse"
+            }
+          },
+          "400":{
+            "description": "bad request"
+          }
+        }
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login user",
+        "operationId": "loginUser",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Created user object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SchemaForLoginUser"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "create",
+            "schema": {
+              "$ref": "#/definitions/PrivateUserResponse"
+            }
+          },
+          "400":{
+            "description": "wrong email or password"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Refresh tokens",
+        "operationId": "refreshTokens",
+        "security": [{"jwt_token": []}],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "responses": {
+          "201": {
+            "description": "create",
+            "schema": {
+              "$ref": "#/definitions/Tokens"
+            }
+          },
+          "400":{
+            "description": "no token provider"
+          },
+          "401":{
+            "description": "Invalid token"
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Forgot password",
+        "operationId": "forgotPassword",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "description": "User email",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ForgotPassword"
+            }
+          }
+
+        ],
+        "responses": {
+          "204": {
+            "description": "no content"
+          },
+          "400":{
+            "description": "no token provider"
+          },
+          "401":{
+            "description": "Invalid token"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Set forgot password",
+        "description": "This can only be done by the give action token (type: forgot).",
+        "operationId": "setForgotPassword",
+        "security": [{"action_token": []}],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "password",
+            "in": "body",
+            "description": "New user password",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SetForgotPassword"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no content"
+          },
+          "400":{
+            "description": "no token provider"
+          },
+          "401":{
+            "description": "Invalid token"
+          }
+        }
+      }
+    },
+    "/auth/verify": {
+      "put": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Verify email",
+        "description": "This can only be done by the give action token (type: verify).",
+        "operationId": "verifyEmail",
+        "security": [{"action_token": []}],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "responses": {
+          "201": {
+            "description": "create",
+            "schema": {
+              "$ref": "#/definitions/PrivateUserResponse"
+            }
+          },
+          "400":{
+            "description": "no token provider"
+          },
+          "401":{
+            "description": "Invalid token"
+          }
+        }
+      }
+    },
+    "/auth/change-password": {
+      "patch": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Change password",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "changePassword",
+        "security": [{"jwt_token": []}],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "Change password",
+            "in": "body",
+            "description": "Change user password",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SetChangePassword"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no content"
+          },
+          "400":{
+            "description": "no token provider"
+          },
+          "401":{
+            "description": "Invalid token"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "jwt_token": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    },
+    "action_token": {
+      "type": "apiKey",
+      "name": "token",
+      "in": "query"
+    }
+  },
+  "definitions": {
+    "UpdateUserDTO": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Updated name in the system",
+          "type": "string",
+          "minimum": 3,
+          "maximum": 50
+        },
+        "phone": {
+          "description": "Updated phone number in the system",
+          "type": "string",
+          "pattern": "\\(?\\+[0-9]{1,3}\\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\\w{1,10}\\s?\\d{1,6})?",
+          "default": "string"
+        },
+        "age": {
+          "description": "Age in years",
+          "type": "number",
+          "minimum": 18,
+          "maximum": 100,
+          "default": 18
+        }
+      }
+    },
+    "PrivateUserResponse": {
+      "type": "object",
+      "required": ["_id", "name", "email", "role", "isDeleted", "isVerified"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The unique identifier for a user"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "age": {
+          "type": "number"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "user"]
+        },
+        "isDeleted": {
+          "type": "boolean"
+        },
+        "isVerified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "PublicUserResponse": {
+      "type": "object",
+      "required": ["_id", "name", "email", "role", "isDeleted", "isVerified"],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The unique identifier for a user"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "age": {
+          "type": "number"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "user"]
+        },
+        "isDeleted": {
+          "type": "boolean"
+        },
+        "isVerified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SchemaForCreateUser": {
+      "type": "object",
+      "required": ["name", "email", "password"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minimum": 3,
+          "maximum": 50,
+          "default": "string"
+        },
+        "email": {
+          "type": "string",
+          "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
+          "default": "string"
+        },
+        "age": {
+          "type": "number",
+          "minimum": 18,
+          "maximum": 100,
+          "default": 18
+        },
+        "password": {
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,}$",
+          "default": "string"
+        },
+        "phone": {
+          "type": "string",
+          "pattern": "\\(?\\+[0-9]{1,3}\\)? ?-?[0-9]{1,3} ?-?[0-9]{3,5} ?-?[0-9]{4}( ?-?[0-9]{3})? ?(\\w{1,10}\\s?\\d{1,6})?",
+          "default": "string"
+        }
+      }
+    },
+    "SchemaForLoginUser": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+
+        "email": {
+          "type": "string",
+          "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
+          "default": "string"
+        },
+
+        "password": {
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,}$",
+          "default": "string"
+        }
+      }
+    },
+    "Tokens": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "accessExpiresIn": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "refreshExpiresIn": {
+          "type": "string"
+        }
+      }
+    },
+    "ForgotPassword": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
+          "default": "string"
+        }
+      }
+    },
+    "SetForgotPassword": {
+      "type": "object",
+      "required": ["password"],
+      "properties": {
+        "password": {
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,}$",
+          "default": "string"
+        }
+      }
+    },
+    "SetChangePassword": {
+      "type": "object",
+      "required": ["oldPassword", "newPassword"],
+      "properties": {
+        "oldPassword": {
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,}$",
+          "default": "string"
+        },
+        "newPassword": {
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,}$",
+          "default": "string"
+        }
+      }
+    }
+  }
+}
