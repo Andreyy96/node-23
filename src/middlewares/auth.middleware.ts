@@ -53,7 +53,7 @@ class AuthMiddleware {
       if (!refreshToken) {
         throw new ApiError(
           errorMessages.NO_TOKEN_PROVIDER,
-          statusCodes.UNAUTHORIZED,
+          statusCodes.BAD_REQUEST,
         );
       }
 
@@ -71,40 +71,6 @@ class AuthMiddleware {
         TokenTypeEnum.REFRESH,
       );
       req.res.locals.tokenPair = tokenPair;
-      next();
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  public async checkActionForgotToken(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
-    try {
-      const actionToken = req.query.token as string;
-      if (!actionToken) {
-        throw new ApiError(
-          errorMessages.NO_TOKEN_PROVIDER,
-          statusCodes.BAD_REQUEST,
-        );
-      }
-      const payload = tokenService.checkActionToken(
-        actionToken,
-        ActionTokenTypeEnum.FORGOT,
-      );
-
-      const entity = await actionTokenRepository.findByParams({
-        actionToken,
-      });
-      if (!entity) {
-        throw new ApiError(
-          errorMessages.INVALID_TOKEN,
-          statusCodes.UNAUTHORIZED,
-        );
-      }
-      req.res.locals.jwtPayload = payload;
       next();
     } catch (e) {
       next(e);
